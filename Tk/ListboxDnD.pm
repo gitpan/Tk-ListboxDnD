@@ -23,10 +23,10 @@ use strict;
 use warnings;
 
 use vars qw($VERSION);
-$VERSION = '1.000';
+$VERSION = '1.100';
 
-use base  qw(Tk::Frame);
-use Tk::widgets qw(Frame Listbox );
+use base  qw(Tk::Derived Tk::Listbox);
+use Tk::widgets qw(Listbox );
 
 Construct Tk::Widget 'ListboxDnD';
 
@@ -34,27 +34,23 @@ sub Populate
   {
     require Tk::Listbox;
 
-    my($cw, $args) = @_;
+    my($listbox, $args) = @_;
 
     my $format = delete($args->{'-dragFormat'});
     if(defined($format))
       {
-	$cw->{'ListboxDnD::dragFormat'} = $format;
+	$listbox->{'ListboxDnD::dragFormat'} = $format;
       }
     else
       {
-	$cw->{'ListboxDnD::dragFormat'} = "<-- %s ";
+	$listbox->{'ListboxDnD::dragFormat'} = "<- %s ";
       }
 
-    $cw->SUPER::Populate($args);
+    $listbox->SUPER::Populate($args);
 
-    my $listbox = $cw->Scrolled('Listbox')
-      ->pack('-expand' => 1, '-fill' => 'both');
-
-    $cw->Advertise('entry' => $listbox );
-    $cw->ConfigSpecs(DEFAULT => [$listbox]);
-    $cw->Delegates(DEFAULT => $listbox);
-    $cw->AddScrollbars($listbox) if (exists ($args->{'-scrollbars'}));
+    $listbox->Advertise('listbox' => $listbox );
+    $listbox->ConfigSpecs(DEFAULT => [$listbox]);
+    $listbox->Delegates(DEFAULT => $listbox);
 
     ########################################################
     # use button  3 to drag and drop the order of selected entries.
@@ -73,7 +69,7 @@ sub Populate
 	      { 
 		$marker_index = $listbox->nearest($Tk::event->y);
 		$dragging_text = $listbox->get($marker_index);
-		$marker_text = sprintf( $cw->{'ListboxDnD::dragFormat'}, $dragging_text );
+		$marker_text = sprintf( $listbox->{'ListboxDnD::dragFormat'}, $dragging_text );
 		$listbox->delete($marker_index);
 		$listbox->insert($marker_index, $marker_text);
 		
